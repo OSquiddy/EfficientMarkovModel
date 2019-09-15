@@ -34,29 +34,41 @@ public class EfficientMarkovModel extends AbstractMarkovModel {
         HashMap<String, ArrayList<String>> map = new HashMap<String, ArrayList<String>>();
         HashMap<String, ArrayList<String>> mainMap = new HashMap<String, ArrayList<String>>();
         String ch ="";
-        ArrayList<String> charFollow = new ArrayList<String>();
+        String newKey ="";
+        ArrayList<String> followList = new ArrayList<String>();
+        ArrayList<String> newList = new ArrayList<String>();
         for(int k=0; k<myText.length(); k++) {
             ch = myText.substring(start,end);
-
             if(!map.containsKey(ch)) {
-                charFollow = getFollows(ch);
-                map.put(ch, charFollow );
-                String chCopy = ch;
-                for(String s : charFollow) {
-                    String newKey = chCopy+s;
-                    if(!mainMap.containsKey(newKey)) {
-                        ArrayList<String> charFollowCopy = getFollows(newKey);
-                        mainMap.put(newKey, charFollowCopy);
-                    }
+                start += 1;
+                end += 1;
+                map.put(ch, new ArrayList<String>());
+                int mapSize = map.size();
+            }
+            else if(map.containsKey(ch)) 
+            {   
+                start +=1;
+                end +=1;
+                continue;
+            }
+            
+        }
+
+        for(String key : map.keySet()) {
+            followList = map.get(key);
+            followList = getFollows(key);
+            newKey = key;
+            for(String s : followList) {
+                newKey = key;
+                newKey += s;
+                if(!map.containsKey(newKey)) {
+                    newList = getFollows(newKey);
+
+                    mainMap.put(newKey, newList);
+
                 }
-
-            }
-            if(charFollow.size()==0) {
-                break;
             }
 
-            start += 1;
-            end += 1;
         }
 
 
@@ -80,14 +92,7 @@ public class EfficientMarkovModel extends AbstractMarkovModel {
             {
                 follows = mainMap.get(key);
             }
-            /*
-            else if(!mainMap.containsKey(key))
-            {   
-                charFollow = getFollows(key);
-                mainMap.put(key, charFollow);
-                follows = mainMap.get(key);
-            }
-            */
+            
             if(follows.size() == 0) {
                 break;
             }
@@ -96,7 +101,7 @@ public class EfficientMarkovModel extends AbstractMarkovModel {
             sb.append(next);
             key = key.substring(1)+next;
         }
-        printHashMapInfo(mainMap);
+        //printHashMapInfo(mainMap);
         return sb.toString();
     }
 
@@ -104,7 +109,22 @@ public class EfficientMarkovModel extends AbstractMarkovModel {
         for(String s : map.keySet()) {
             System.out.println("Key: "+s+", Value: "+map.get(s));
         }
-
         System.out.println("There are "+map.size()+" keys in the map.");
+        
+        int max =0;
+        for(ArrayList<String> list : map.values()) {
+            if( max<list.size()) {
+                max = list.size();
+            }
+        }
+        System.out.println("The max value in the HashMap is " + max);
+        
+        System.out.println("\nThe keys with the max values are: ");
+        for(String s : map.keySet()) {
+            if( map.get(s).size() == max) {
+                System.out.println("Key : "+s+" "+map.get(s));
+            }
+        }
     }
 }
+
